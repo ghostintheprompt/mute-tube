@@ -1,0 +1,21 @@
+{
+  "name": "youtube-ad-muter-extension",
+  "version": "1.0.0",
+  "description": "A Chrome extension that mutes ads on YouTube and automatically resumes playback.",
+  "main": "src/background/background.js",
+  "scripts": {
+    "build": "echo 'Build script not defined'",
+    "test": "echo 'Test script not defined'"
+  },
+  "keywords": [
+    "chrome",
+    "extension",
+    "youtube",
+    "ads",
+    "mute"
+  ],
+  "author": "Your Name",
+  "license": "MIT",
+  "dependencies": {},
+  "devDependencies": {}
+}

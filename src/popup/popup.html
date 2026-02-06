@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <link rel="stylesheet" href="popup.css">
+</head>
+<body>
+    <div class="boombox">
+        <div class="boombox-header">
+            <div class="brand">MUTETUBE</div>
+            <div class="model">AD-KILLER 80</div>
+        </div>
+        
+        <div class="display-panel">
+            <div class="led-display">
+                <span id="status">READY</span>
+            </div>
+        </div>
+        
+        <div class="control-panel">
+            <div class="big-buttons">
+                <button id="toggle-btn" class="control-btn play">▶</button>
+                <button id="skip-btn" class="control-btn">⏭</button>
+            </div>
+            
+            <div class="small-buttons">
+                <button id="mute-btn" class="mini-btn">🔇</button>
+                <button id="settings-btn" class="mini-btn">⚙</button>
+            </div>
+        </div>
+        
+        <div class="speaker-grilles">
+            <div class="speaker left-speaker"></div>
+            <div class="speaker right-speaker"></div>
+        </div>
+        
+        <div class="status-lights">
+            <div class="led power-led"></div>
+            <div class="led mute-led"></div>
+        </div>
+    </div>
+    
+    <script src="popup.js"></script>
+</body>
+</html>

@@ -1,0 +1,27 @@
+{
+  "manifest_version": 3,
+  "name": "YouTube Ad Muter",
+  "version": "1.0.0",
+  "description": "Automatically mutes YouTube ads and skips them. No more blasting ads interrupting your music.",
+  
+  "permissions": [
+    "activeTab"
+  ],
+  
+  "content_scripts": [
+    {
+      "matches": ["*://*.youtube.com/*"],
+      "js": ["src/content/content.js"],
+      "run_at": "document_end"
+    }
+  ],
+  
+  "background": {
+    "service_worker": "src/background/background.js"
+  },
+  
+  "action": {
+    "default_popup": "src/popup/popup.html",
+    "default_title": "YouTube Ad Muter"
+  }
+}
