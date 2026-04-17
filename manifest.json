@@ -1,13 +1,18 @@
 {
   "manifest_version": 3,
-  "name": "YouTube Ad Muter",
-  "version": "1.0.0",
-  "description": "Automatically mutes YouTube ads and skips them. No more blasting ads interrupting your music.",
-  
+  "name": "Mute Tube",
+  "version": "2.0.0",
+  "description": "Mutes YouTube ads. Reference implementation for browser extension security hardening.",
+
   "permissions": [
-    "activeTab"
+    "activeTab",
+    "storage"
   ],
-  
+
+  "content_security_policy": {
+    "extension_pages": "default-src 'self'; script-src 'self'; object-src 'none'; connect-src 'none'; style-src 'self'; img-src 'self' data:;"
+  },
+
   "content_scripts": [
     {
       "matches": ["*://*.youtube.com/*"],
@@ -15,13 +20,13 @@
       "run_at": "document_end"
     }
   ],
-  
+
   "background": {
     "service_worker": "src/background/background.js"
   },
-  
+
   "action": {
     "default_popup": "src/popup/popup.html",
-    "default_title": "YouTube Ad Muter"
+    "default_title": "Mute Tube"
   }
 }
