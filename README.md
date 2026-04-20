@@ -1,6 +1,7 @@
-# Mute Tube
+<img src="mute_tube.png" width="200">
 
-A lightweight Chrome extension that automatically mutes YouTube ads and skips them when possible.
+# Mute Tube
+A lightweight Chrome extension that automatically mutes YouTube ads and skips them when possible. — v1.0
 
 ## What It Does
 
