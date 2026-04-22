@@ -127,8 +127,10 @@ Expected output: zero matches.
 
 ## Contributing
 
-YouTube changed something and it broke? Open an issue or submit a PR. That is how this has always worked.
+YouTube changed something and it broke? Open an issue or submit a PR. That is how this has always worked. Hit the big boys in the pocket. Let them feel it. 
 
 ## Read It Before You Trust It
 
 This extension touches everything your browser does on YouTube. Read `src/content/content.js` before you install it. The whole content script is under a hundred lines. It should take ten minutes to verify. If something surprises you, open an issue.
+
+occhio per occhio dente per dente
