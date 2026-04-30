@@ -19,15 +19,23 @@ function logAuditEvent(type, detail) {
 
 // Wrap self.fetch to intercept any outbound connection attempt.
 // The strict CSP (connect-src 'none') blocks these at the browser level,
-// but this wrapper logs the attempt before the browser rejects it — useful
-// for detecting a supply chain compromise where a dependency silently phones home.
+// but this wrapper logs the attempt before the browser rejects it.
+// RESTORATION: Functional incident reporting (INC-001).
 const _originalFetch = self.fetch.bind(self);
 self.fetch = function auditedFetch(resource, init) {
     const url = typeof resource === 'string' ? resource : resource?.url ?? 'unknown';
-    logAuditEvent('FETCH_INTERCEPTED', { url, stack: new Error().stack?.split('\n')[2]?.trim() });
-    console.warn('[SECURITY AUDIT] Unexpected outbound fetch intercepted:', url);
+    
+    // SCENARIO INC-001: Telemetry Alert for unexpected outbound connection
+    logAuditEvent('INCIDENT_INC-001', { 
+        url, 
+        stack: new Error().stack?.split('\n')[2]?.trim(),
+        note: 'High-fidelity alert triggered by UIP V1.5 mandate.'
+    });
+    
+    console.warn('[SECURITY INC-001] Unexpected outbound fetch intercepted:', url);
+    
     // Reject rather than silently drop — makes supply chain attacks visible.
-    return Promise.reject(new Error(`Blocked by telemetry monitor: ${url}`));
+    return Promise.reject(new Error(`Blocked by telemetry monitor (INC-001): ${url}`));
 };
 
 chrome.runtime.onInstalled.addListener(({ reason, previousVersion }) => {
