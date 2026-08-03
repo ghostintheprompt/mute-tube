@@ -3,7 +3,19 @@
 </p>
 
 # Mute Tube
-A lightweight Chrome extension that automatically mutes YouTube ads and skips them when possible. — v1.0
+A lightweight Chrome extension that automatically mutes YouTube ads and skips them when possible. — v2.1.0
+
+## 2026 Maintenance Status
+
+Current as of 2026-08-03:
+
+- Manifest V3
+- No remote extension code
+- No outbound extension network access (`connect-src 'none'`)
+- Production content script does not read form/input values
+- Content script is scoped to `www.youtube.com`, `m.youtube.com`, and `music.youtube.com`
+- Popup includes a small security deck for enabled state, network policy, and audit-log count
+- `npm test` runs a local validator for manifest, CSP, permissions, and production-code privacy boundaries
 
 ## What It Does
 
@@ -26,8 +38,11 @@ Content scripts watch the YouTube DOM for ad state changes. When an ad loads, th
 
 ```javascript
 const adSelectors = [
+    '.ad-showing',
     '.video-ads',
     '.ytp-ad-player-overlay',
+    '.ytp-ad-preview-container',
+    '.ytp-ad-module',
     '.ytp-ad-overlay-container',
     '.ytp-ad-skip-button',
     '.ytp-ad-skip-button-modern',
@@ -37,7 +52,7 @@ const adSelectors = [
 
 That selector list is a changelog. Every entry represents a round where YouTube changed a class name and the extension adapted. Class rotation is YouTube's cheapest defensive move. Wildcard matching is the counter.
 
-The extension runs a MutationObserver plus a 500ms interval — both simultaneously — because YouTube's different ad types mutate the DOM in different patterns. One approach misses what the other catches.
+The extension runs a MutationObserver plus a 500ms interval while enabled — both simultaneously — because YouTube's different ad types mutate the DOM in different patterns. One approach misses what the other catches. Disabling the extension stops both watchers and restores the pre-ad mute/volume state.
 
 ## The More Interesting Point
 
@@ -59,7 +74,7 @@ Browser extensions are one of the highest-privilege, least-audited attack surfac
 
 ### Permissions
 
-Two. `activeTab` and `storage`. That's the entire permission surface.
+Two. `activeTab` and `storage`. That's the entire API permission surface. The content script is explicitly scoped to the YouTube surfaces it needs.
 
 `activeTab` is user-gesture-gated and ephemeral. It grants temporary access to the active tab only when the user clicks the popup — and only for that tab, for that moment. It cannot enumerate other tabs, read browse history, or persist across navigations. It is the narrowest tab permission Chrome offers.
 
@@ -87,8 +102,8 @@ A clean install produces a log containing one entry: the `INSTALL` lifecycle eve
 
 `research/` contains documented demonstrations of the attacks this extension's architecture defends against:
 
-- `dom_hijack_demo.js` — shows how a content script enumerates password fields and attaches keydown listeners (T1056.004). Values are never read. The code shows the attack structure a defender needs to recognize.
-- `supply_chain_sim.js` — simulates what a malicious background.js update looks like, with entropy analysis and manifest diff tooling for detection.
+- `dom_hijack_demo.js` — shows how a content script enumerates password fields and observes change events (T1056.004). Values are never read. The code shows the attack structure a defender needs to recognize.
+- `supply_chain_sim.js` — simulates what a malicious background.js update looks like, with entropy analysis and manifest diff tooling for detection. Network simulation is dry-run unless explicitly armed in a controlled lab.
 
 ### YARA Rules
 
@@ -99,6 +114,18 @@ To scan this repo:
 yara -r security/extension.yar src/
 ```
 Expected output: zero matches.
+
+Built-in validation:
+
+```bash
+npm test
+```
+
+Expected output:
+
+```text
+Mute Tube validation passed.
+```
 
 ### Threat Model
 
@@ -131,6 +158,6 @@ YouTube changed something and it broke? Open an issue or submit a PR. That is ho
 
 ## Read It Before You Trust It
 
-This extension touches everything your browser does on YouTube. Read `src/content/content.js` before you install it. The whole content script is under a hundred lines. It should take ten minutes to verify. If something surprises you, open an issue.
+This extension touches YouTube pages you visit. Read `src/content/content.js` before you install it. It should take ten minutes to verify. If something surprises you, open an issue.
 
 occhio per occhio dente per dente

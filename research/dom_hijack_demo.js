@@ -4,7 +4,7 @@
  * AUTHORIZED RESEARCH ONLY. This script demonstrates the attack surface
  * available to any Chrome extension running a content script on a page.
  * It does NOT capture or transmit values. It demonstrates enumeration
- * and observation — the first two stages of a credential-theft attack.
+ * and observation metadata — the first two stages of a credential-theft attack.
  *
  * This is what a malicious extension does before it reads .value.
  * Understanding the technique is the prerequisite for detecting it.
@@ -49,7 +49,7 @@ function enumerateSensitiveFields() {
 
 /**
  * Stage 2 — Observation (Scenario s1)
- * Attach event listeners to watch for keystrokes in sensitive fields.
+ * Attach event listeners to watch that sensitive fields changed.
  * This is the pattern YARA rule Extension_Input_Capture detects.
  *
  * A defender hunting malicious extensions looks for:
@@ -57,7 +57,8 @@ function enumerateSensitiveFields() {
  *   - Targeting password or email inputs
  *   - Followed by chrome.runtime.sendMessage or XMLHttpRequest
  *
- * RESTORATION: Functional logic implemented per UIP V1.5.
+ * This deliberately avoids reading field.value. Presence and event metadata
+ * are enough for defender education without handling user secrets.
  */
 function demonstrateObservationPattern() {
     const passwordFields = document.querySelectorAll('input[type="password"]');
@@ -65,14 +66,15 @@ function demonstrateObservationPattern() {
     passwordFields.forEach(field => {
         // This is what a keylogger extension attaches:
         const demoListener = (e) => {
-            // SCENARIO s1: Functional input capture
-            const capturedValue = field.value;
-            console.warn('[RESEARCH s1] Captured keystroke. Current buffer:', capturedValue);
-            
-            // Malicious version: chrome.runtime.sendMessage({ type: 'EXFIL_s1', key: e.key, value: capturedValue })
-            console.log('[RESEARCH s1] A malicious extension would exfiltrate this buffer now.');
-            
-            // field.removeEventListener('keydown', demoListener); // Removed single-fire to allow full buffer observation
+            console.warn('[RESEARCH s1] Sensitive field changed:', {
+                eventType: e.type,
+                fieldType: field.type || null,
+                fieldNamePresent: Boolean(field.name),
+                valueRead: false
+            });
+
+            // Malicious version would read field.value and exfiltrate it here.
+            console.log('[RESEARCH s1] This demo stops before value capture.');
         };
         field.addEventListener('input', demoListener);
     });

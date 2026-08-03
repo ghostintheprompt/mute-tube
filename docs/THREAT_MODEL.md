@@ -47,6 +47,7 @@ Extension loaded on youtube.com
 - `content.js` enumerates sensitive fields but reads NO values (research mode logs presence only)
 - `connect-src 'none'` in CSP blocks all outbound connections — buffer cannot be exfiltrated
 - `background.js` wraps `self.fetch` and rejects all calls — secondary enforcement
+- `background.js` sanitizes audit details and redacts sensitive key names before writing storage
 - YARA rule `Extension_Input_Capture` detects the pattern in source
 
 **Residual Risk:** Low. CSP is enforced by the browser engine, not by extension code.
@@ -86,6 +87,7 @@ Extension requests 'tabs' permission
 
 **Controls in Mute Tube:**
 - `tabs` permission not declared — `activeTab` is used instead (user-gesture-gated, ephemeral)
+- Content script match patterns are narrowed to `www.youtube.com`, `m.youtube.com`, and `music.youtube.com`
 - No `tabs.onUpdated` listener in background.js
 - YARA rule `Extension_Manifest_Permission_Overreach` flags `tabs` + `<all_urls>` combinations
 
@@ -160,7 +162,8 @@ Block chrome.exe from initiating connections to domains registered less than 90 
 | CSP validation | Manual | `connect-src 'none'` enforced. No external script sources. |
 | YARA scan | `yara -r security/extension.yar src/` | 0 matches. Clean. |
 | Outbound connections | Browser DevTools Network tab | 0 external requests observed during normal operation. |
-| Storage contents | `chrome.storage.local.get(null, console.log)` | Audit log and enabled state only. |
+| Storage contents | `chrome.storage.local.get(null, console.log)` | Sanitized audit log and enabled state only. |
+| Local validator | `npm test` | Manifest/CSP/permission/privacy checks pass. |
 
 ---
 

@@ -1,8 +1,8 @@
 {
   "manifest_version": 3,
   "name": "Mute Tube",
-  "version": "2.0.0",
-  "description": "Mutes YouTube ads. Reference implementation for browser extension security hardening.",
+  "version": "2.1.0",
+  "description": "Mutes YouTube ads with a narrow, auditable Manifest V3 extension.",
 
   "permissions": [
     "activeTab",
@@ -15,7 +15,11 @@
 
   "content_scripts": [
     {
-      "matches": ["*://*.youtube.com/*"],
+      "matches": [
+        "*://www.youtube.com/*",
+        "*://m.youtube.com/*",
+        "*://music.youtube.com/*"
+      ],
       "js": ["src/content/content.js"],
       "run_at": "document_end"
     }
@@ -27,6 +31,13 @@
 
   "action": {
     "default_popup": "src/popup/popup.html",
-    "default_title": "Mute Tube"
+    "default_title": "Mute Tube",
+    "default_icon": {
+      "128": "mute_tube.png"
+    }
+  },
+
+  "icons": {
+    "128": "mute_tube.png"
   }
 }

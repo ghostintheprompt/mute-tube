@@ -19,14 +19,31 @@
         
         <div class="control-panel">
             <div class="big-buttons">
-                <button id="toggle-btn" class="control-btn play">▶</button>
-                <button id="skip-btn" class="control-btn">⏭</button>
+                <button id="toggle-btn" class="control-btn play" title="Enable or disable Mute Tube">▶</button>
+                <button id="skip-btn" class="control-btn" title="Skip visible ad">⏭</button>
             </div>
             
             <div class="small-buttons">
-                <button id="mute-btn" class="mini-btn">🔇</button>
-                <button id="settings-btn" class="mini-btn">⚙</button>
+                <button id="mute-btn" class="mini-btn" title="Toggle mute">🔇</button>
+                <button id="settings-btn" class="mini-btn" title="Security settings">⚙</button>
             </div>
+        </div>
+
+        <div id="settings-panel" class="settings-panel" hidden>
+            <div class="settings-title">SECURITY DECK</div>
+            <div class="settings-row">
+                <span>STATE</span>
+                <strong id="enabled-state">ON</strong>
+            </div>
+            <div class="settings-row">
+                <span>NETWORK</span>
+                <strong>BLOCKED</strong>
+            </div>
+            <div class="settings-row">
+                <span>AUDIT LOG</span>
+                <strong id="audit-count">0</strong>
+            </div>
+            <button id="clear-log-btn" class="wide-btn">CLEAR AUDIT LOG</button>
         </div>
         
         <div class="speaker-grilles">

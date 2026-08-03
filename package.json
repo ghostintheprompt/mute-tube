@@ -1,11 +1,12 @@
 {
-  "name": "youtube-ad-muter-extension",
-  "version": "1.0.0",
-  "description": "A Chrome extension that mutes ads on YouTube and automatically resumes playback.",
+  "name": "mute-tube",
+  "version": "2.1.0",
+  "description": "A narrow Manifest V3 Chrome extension that mutes YouTube ads and documents extension security hardening.",
   "main": "src/background/background.js",
   "scripts": {
-    "build": "echo 'Build script not defined'",
-    "test": "echo 'Test script not defined'"
+    "build": "npm run validate",
+    "test": "npm run validate",
+    "validate": "node scripts/validate.js"
   },
   "keywords": [
     "chrome",
@@ -14,7 +15,7 @@
     "ads",
     "mute"
   ],
-  "author": "Your Name",
+  "author": "ghostintheprompt",
   "license": "MIT",
   "dependencies": {},
   "devDependencies": {}

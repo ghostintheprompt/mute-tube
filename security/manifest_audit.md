@@ -10,7 +10,7 @@ Security review of every permission declared in `manifest.json` against the Prin
 
 **What it grants:** Temporary access to the currently active tab — only when the user invokes the extension (clicks the popup or a keyboard shortcut). Access is revoked as soon as the tab navigates or the extension stops running.
 
-**Why it's needed:** The popup sends messages (`chrome.tabs.sendMessage`) to the content script to trigger manual skip/mute actions. Without `activeTab`, there is no way to route messages to the correct tab.
+**Why it's needed:** The popup sends messages (`chrome.tabs.sendMessage`) to the content script to trigger manual skip/mute actions and query enabled state. Without `activeTab`, there is no narrow way to route messages to the currently active tab after a user gesture.
 
 **Abuse scenario:** An extension requesting `tabs` (broad, persistent) instead of `activeTab` can enumerate all open tabs, read their URLs, and track browsing history continuously. `activeTab` grants none of that.
 
@@ -26,7 +26,7 @@ Security review of every permission declared in `manifest.json` against the Prin
 
 **Abuse scenario:** Extensions commonly use `storage` to persist user data including browsing behavior, form inputs, or authentication tokens. A compromised extension with `storage` access could accumulate sensitive data across sessions.
 
-**Mitigation:** Only two keys are written: `auditLog` (internal security log) and `enabled` (toggle state). No user-identifiable data is stored. The log contains only metadata (timestamps, event types, URLs of YouTube ad events). Storage is never read by any third party — `connect-src 'none'` in the CSP makes exfiltration impossible.
+**Mitigation:** Only two keys are written: `auditLog` (internal security log) and `enabled` (toggle state). No user-identifiable data is stored. The log contains only sanitized metadata (timestamps, event types, YouTube host/path context). Storage is never read by any third party — `connect-src 'none'` in the CSP makes exfiltration impossible.
 
 ---
 
@@ -39,7 +39,7 @@ Security review of every permission declared in `manifest.json` against the Prin
 | `cookies` | Read/write cookies for any domain | Not needed. No authentication required. |
 | `history` | Read full browsing history | Not needed. |
 | `downloads` | Trigger file downloads | Not needed. |
-| `<all_urls>` host permission | Run on every website | Not needed. Content script is scoped to `*.youtube.com` only. |
+| `<all_urls>` host permission | Run on every website | Not needed. Content script is scoped to `www.youtube.com`, `m.youtube.com`, and `music.youtube.com` only. |
 | `identity` | OAuth token access | Not needed. |
 | `nativeMessaging` | Communicate with native OS applications | Not needed. No local binary. |
 
@@ -75,4 +75,4 @@ Browser extensions are one of the highest-privilege, least-audited attack surfac
 3. Persist keystroke buffers in `storage.local` for later retrieval
 4. Update silently via Chrome's auto-update mechanism with no user notification
 
-This audit documents that Mute Tube does none of those things — and explains, at the code level, why it cannot.
+This audit documents that Mute Tube does none of those things — and explains, at the code level, why it should not be able to. Run `npm test` after changes to validate the manifest, CSP, permission surface, and production-code privacy boundaries.

@@ -3,12 +3,33 @@
 // A clean run proves zero external connections. Any fetch logged here is an anomaly worth investigating.
 
 const MAX_LOG_ENTRIES = 200;
+const MAX_STRING_LENGTH = 300;
+const SENSITIVE_KEY_PATTERN = /(password|passwd|pwd|secret|token|cookie|authorization|api[_-]?key|value)/i;
+
+function sanitizeDetail(value, depth = 0) {
+    if (depth > 4) return '[depth-limit]';
+    if (value == null) return value;
+    if (typeof value === 'string') return value.slice(0, MAX_STRING_LENGTH);
+    if (typeof value === 'number' || typeof value === 'boolean') return value;
+    if (Array.isArray(value)) return value.slice(0, 25).map(item => sanitizeDetail(item, depth + 1));
+    if (typeof value !== 'object') return String(value).slice(0, MAX_STRING_LENGTH);
+
+    const cleaned = {};
+    for (const [key, childValue] of Object.entries(value)) {
+        if (SENSITIVE_KEY_PATTERN.test(key)) {
+            cleaned[key] = '[redacted]';
+            continue;
+        }
+        cleaned[key] = sanitizeDetail(childValue, depth + 1);
+    }
+    return cleaned;
+}
 
 function logAuditEvent(type, detail) {
     const entry = {
         ts: Date.now(),
-        type,
-        detail,
+        type: String(type || 'UNKNOWN').slice(0, 80),
+        detail: sanitizeDetail(detail || {}),
         extensionId: chrome.runtime.id
     };
     chrome.storage.local.get({ auditLog: [] }, ({ auditLog }) => {
@@ -47,6 +68,8 @@ chrome.runtime.onInstalled.addListener(({ reason, previousVersion }) => {
 });
 
 chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
+    if (!message || typeof message !== 'object') return false;
+
     switch (message.type) {
         case 'AUDIT_EVENT':
             logAuditEvent(message.event, message.detail);
